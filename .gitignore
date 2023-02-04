@@ -1,0 +1,5 @@
+db.sqlite3
+venv/
+django-dump-load-utf8.txt
+__pycache__/
+.idea/
