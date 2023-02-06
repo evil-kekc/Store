@@ -17,17 +17,20 @@ def index(request):
     return render(request=request, template_name='products/index.html', context=context)
 
 
-def products(request):
+def products(request, category_id=None):
     """Products page display
 
+    :param category_id: product category id
     :param request: HttpRequest
     :return: object of products page
     """
+
+    sorted_products = Product.objects.filter(category__id=category_id) if category_id else Product.objects.all()
+
     context = {
         'title': 'Store - Каталог',
-        'products': Product.objects.all(),
         'categories': ProductCategory.objects.all(),
-
+        'products': sorted_products
     }
     return render(request, 'products/products.html', context)
 
