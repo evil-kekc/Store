@@ -1,43 +1,52 @@
 from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator
 from django.http import HttpResponseRedirect
-from django.shortcuts import render
+from django.views.generic import ListView
+from django.views.generic.base import TemplateView
 
 from products.models import ProductCategory, Product, Basket
 
 
-def index(request):
-    """Home page display
+class IndexView(TemplateView):
+    """Home page display"""
+    template_name = 'products/index.html'
 
-    :param request: HttpRequest
-    :return: object HttpResponse of main page
-    """
-    context = {
-        'title': 'Store',
-    }
-    return render(request=request, template_name='products/index.html', context=context)
+    def get_context_data(self, **kwargs):
+        """Passing context
+
+        :param kwargs:
+        :return: context
+        """
+        context = super(IndexView, self).get_context_data()
+        context['title'] = 'Store'
+        return context
 
 
-def products(request, category_id=None, page_number=1):
-    """Products page display
+class ProductsListView(ListView):
+    """Products views"""
+    model = Product
+    template_name = 'products/products.html'
+    paginate_by = 3
 
-    :param page_number: Number of page
-    :param category_id: product category id
-    :param request: HttpRequest
-    :return: object of products page
-    """
-    sorted_products = Product.objects.filter(category__id=category_id) if category_id else Product.objects.all()
+    def get_queryset(self):
+        """Filter products by category
 
-    per_page = 3
-    paginator = Paginator(sorted_products, per_page)
-    products_paginator = paginator.page(page_number)
+        :return: Products filtered by category or all products
+        """
+        query_set = super(ProductsListView, self).get_queryset()
+        category_id = self.kwargs.get('category_id')
+        return query_set.filter(category_id=category_id) if category_id else query_set
 
-    context = {
-        'title': 'Store - Каталог',
-        'categories': ProductCategory.objects.all(),
-        'products': products_paginator
-    }
-    return render(request, 'products/products.html', context)
+    def get_context_data(self, *, object_list=None, **kwargs):
+        """Passing context
+
+        :param object_list: object_list of products.views.ProductsListView.get_context_data
+        :param kwargs: kwargs of products.views.ProductsListView.get_context_data
+        :return: context
+        """
+        context = super(ProductsListView, self).get_context_data()
+        context['title'] = 'Store - Каталог'
+        context['categories'] = ProductCategory.objects.all()
+        return context
 
 
 @login_required

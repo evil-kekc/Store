@@ -30,9 +30,8 @@ class Product(models.Model):
         verbose_name_plural = 'products'
         ordering = ['-price']
 
-
-def __str__(self):
-    return f'Продукт: {self.name} | Категория: {self.category.name}'
+    def __str__(self):
+        return f'Продукт: {self.name} | Категория: {self.category.name}'
 
 
 class BasketQuerySet(models.QuerySet):
